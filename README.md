@@ -211,7 +211,7 @@ end,
 
 ## Full documentation
 
-<detail>
+<details>
 
 <summary>
 
@@ -481,9 +481,9 @@ All of them are located in `~/.config/claudebridge/`
   - Blocked/custom models
   - model cost overrides
   - only one to reload if changed manually by the user
-6. metrics.json - Metrics Checkpoint 
+- metrics.json - Metrics Checkpoint 
   - restores all the metrics for the dashboard and prometheus
-7. rate_limits.json - Rate Limit State 
+- rate_limits.json - Rate Limit State 
   - Sliding window data for rate limiting
   - Per-token request/token counts over time
   - allows for rate limiting to survive reboot
