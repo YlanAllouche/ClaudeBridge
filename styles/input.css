@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory-light: #faf9f5;
+  --color-ivory-medium: #f0eee6;
+  --color-ivory-dark: #e8e6dc;
+  --color-cloud-light: #d1cfc5;
+  --color-cloud-medium: #b0aea5;
+  --color-cloud-dark: #87867f;
+  --color-leather: #cc785c;
+  --color-sky: #6a9bcc;
+  --color-olive: #788c5d;
+  --color-kraft: #d4a27f;
+  --color-clay: #d97757;
+  --color-coral: #ebcece;
+  --color-cactus: #bcd1ca;
+  --color-oat: #e3dacc;
+  --color-fig: #c46686;
+  --color-dark: #0f0f0e;
+  --color-white: #ffffff;
+  --spacing-3: 6px;
+  --spacing-2: 4px;
+  --spacing-3: 6px;
+
+  --shadow-warm: 0 1px 3px 0 rgba(15, 15, 14, 0.08);
+  --shadow-warm-md: 0 4px 6px -1px rgba(15, 15, 14, 0.08);
+  --shadow-warm-lg: 0 10px 15px -3px rgba(15, 15, 14, 0.08);
+  --shadow-warm-xl: 0 20px 25px -5px rgba(15, 15, 14, 0.1);
+
+  --radius-material: 12px;
+  --radius-card: 16px;
+
+  --font-sans: Merriweather, serif;
+  --font-heading: Poppins, sans-serif;
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(main-content) {
+  animation: fade-out 0.2s ease-out;
+}
+
+::view-transition-new(main-content) {
+  animation: fade-in 0.3s ease-in;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator {
+  display: inline-block;
+}
+
+.htmx-request .htmx-indicator-text {
+  display: none;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
