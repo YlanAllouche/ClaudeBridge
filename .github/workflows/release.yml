@@ -16,6 +16,8 @@ jobs:
     name: Build python wheel dist
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
