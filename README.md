@@ -491,12 +491,8 @@ All of them are located in `~/.config/claudebridge/`
 
 </details>
 
-<details> 
 
-<summary>
-
-
-## Issues and next focus
+# Issues and next focus
 
 <details> 
 

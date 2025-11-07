@@ -1,6 +1,6 @@
 [project]
 name = "claudebridge"
-version = "0.1.0.dev"
+version = "0.1.0"
 description = "OpenAI-compatible API bridge for Claude using OAuth tokens"
 authors = [{name = "Ylan Allouche"}]
 readme = "README.md"
@@ -13,8 +13,8 @@ dependencies = [
     "requests>=2.31.0",
     "loguru>=0.7.3",
     "waitress>=3.0.0",
-    "pyhtml-htmx @ git+https://github.com/YlanAllouche/pyhtml-htmx/",
-    "pyhtml-cem @ git+https://github.com/YlanAllouche/pyhtml-cem",
+    "pyhtml-htmx >= 0.1",
+    "pyhtml-cem >= 0.1",
 ]
 
 [project.scripts]
