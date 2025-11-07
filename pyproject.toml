@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.scripts]
-claudebridge = "claudeprobridge.__main__:main"
+claudeprobridge = "claudebridge.__main__:main"
 
 [build-system]
 requires = ["setuptools>=68.0.0", "wheel"]
