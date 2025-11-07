@@ -67,6 +67,15 @@ docker run -e DISABLE_UI_PASSWORD=true claudebridge  # No password
 docker run -e UI_PASSWORD=mysecret claudebridge      # Password
 ```
 
+### Directly from PypI
+
+
+``` bash
+
+pip install claudeprobridge
+
+```
+
 
 ### Build and install wheel locally (downloads frontend deps + builds)
 
