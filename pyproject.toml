@@ -1,5 +1,5 @@
 [project]
-name = "claudebridge"
+name = "claudeprobridge"
 version = "0.1.0"
 description = "OpenAI-compatible API bridge for Claude using OAuth tokens"
 authors = [{name = "Ylan Allouche"}]
