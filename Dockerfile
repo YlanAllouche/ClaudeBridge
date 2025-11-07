@@ -18,6 +18,6 @@ RUN pip install --no-cache-dir dist/*.whl
 FROM python:3.11-alpine
 WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin/claudebridge /usr/local/bin/claudebridge
+COPY --from=builder /usr/local/bin/claudeprobridge /usr/local/bin/claudeprobridge
 ENV DEBUG=info
-CMD ["claudebridge"]
+CMD ["claudeprobridge"]
