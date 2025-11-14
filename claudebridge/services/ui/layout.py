@@ -74,44 +74,10 @@ def create_head(title="ClaudeBridge"):
             rel="stylesheet",
             href="/static/styles.css",
         ),
-        # FIX: No spinner animation on the "test" button in /models
+        # TODO: Try view transition again - maybe wait for better support in firefox
         # TODO: Move in-line css to global css style
         p.style(
             """
-            @view-transition {
-                navigation: auto;
-            }
-            
-            ::view-transition-old(main-content) {
-                animation: fade-out 0.2s ease-out;
-            }
-            
-            ::view-transition-new(main-content) {
-                animation: fade-in 0.3s ease-in;
-            }
-            
-            @keyframes fade-out {
-                from {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                to {
-                    opacity: 0;
-                    transform: translateY(-8px);
-                }
-            }
-            
-            @keyframes fade-in {
-                from {
-                    opacity: 0;
-                    transform: translateY(8px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
             .htmx-indicator {
                 display: none;
             }
@@ -140,17 +106,7 @@ def create_head(title="ClaudeBridge"):
         ),
         p.script(
             """
-            document.addEventListener('htmx:beforeSwap', function(evt) {
-                if (document.startViewTransition) {
-                    evt.detail.shouldSwap = false;
-                    document.startViewTransition(() => {
-                        evt.detail.shouldSwap = true;
-                        evt.detail.target.innerHTML = evt.detail.serverResponse;
-                    });
-                }
-            });
-            
-            document.addEventListener('htmx:afterSwap', function(evt) {
+            document.addEventListener('htmx:afterSettle', function(evt) {
                 if (evt.detail.target) {
                     htmx.process(evt.detail.target);
                 }
