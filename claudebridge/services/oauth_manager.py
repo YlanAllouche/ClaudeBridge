@@ -29,12 +29,10 @@ class OAuthManager:
 
     def __init__(
         self,
-        tokens_file: str = "tokens.json",
         base_url: str = "http://localhost:8000",
         accounts_manager=None,
     ):
         self.client_id = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
-        self.tokens_file = tokens_file
         self.base_url = base_url
         self.default_redirect_uri = "https://console.anthropic.com/oauth/code/callback"
         self.scopes = "org:create_api_key user:profile user:inference"
@@ -97,18 +95,6 @@ class OAuthManager:
         auth_url = f"{base_url}?{urlencode(params)}"
         return auth_url, pkce["verifier"], session_id
 
-    def save_tokens(self, tokens: Dict[str, Any]) -> None:
-        """
-        DEPRECATED: Tokens should be managed via AccountsManager
-        Save tokens to JSON file (legacy support only)
-        """
-        try:
-            with open(self.tokens_file, "w") as f:
-                json.dump(tokens, f, indent=2)
-            logger.debug(f"Tokens saved to {self.tokens_file} (legacy)")
-        except Exception as e:
-            logger.debug(f"Failed to save tokens: {e}")
-
     def exchange_code_for_tokens(
         self, code: str, verifier: str, redirect_uri: Optional[str] = None
     ) -> Dict[str, Any]:
@@ -158,9 +144,6 @@ class OAuthManager:
             "full_response": token_response,  # Include full response for metadata capture
         }
 
-        # Save tokens to file
-        self.save_tokens(tokens)
-
         return tokens
 
     def refresh_access_token(self, refresh_token: str) -> Dict[str, Any]:
@@ -203,4 +186,3 @@ class OAuthManager:
         }
 
         return tokens
-
