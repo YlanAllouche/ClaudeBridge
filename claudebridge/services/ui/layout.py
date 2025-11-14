@@ -158,6 +158,17 @@ def create_head(title="ClaudeBridge"):
                 if (evt.detail.target.id === 'main-content') {
                     const path = window.location.pathname;
                     const page = path.split('/').pop() || 'models';
+                    
+                    const pageNames = {
+                        'models': 'Models',
+                        'account': 'Account',
+                        'usage': 'Usage',
+                        'users': 'Users',
+                        'settings': 'Settings',
+                        'chat': 'Chat'
+                    };
+                    document.title = (pageNames[page] ? pageNames[page] + ' - ' : '') + 'ClaudeBridge';
+                    
                     document.querySelectorAll('.nav-link').forEach(link => {
                         link.classList.remove('bg-dark', 'text-white', 'font-semibold');
                         link.classList.add('text-cloud-dark');
