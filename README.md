@@ -22,7 +22,7 @@ Self-hosted gateway that mirrors Claude Pro’s connection handshake, exposes an
 - Record and gives complete observability over your subscription usage
 - This include estimated $ value of the subscription
 - Exposes models that do not seem otherwise available in ClaudeCode (namely `sonnet 3.7` and `opus 3`)
-- Works across apps and machines
+- Works across apps and machines without losing track of your usage
 - Allows to share the subscription across several users or applications with internal tokens
 - Shows real subscription usage in % for 5h and 7d window limits
 
@@ -92,7 +92,7 @@ pip install dist/claudebridge-0.1.0-py3-none-any.whl
 - Run
 
 ```
-claudebridge
+claudeprobridge
 ```
 
 ### Containers
@@ -202,9 +202,9 @@ ANTHROPIC_BASE_URL="http://localhost:8000" ANTHROPIC_API_KEY="mykey" claude
 ```lua
 bureau = function()
 	return require("codecompanion.adapters").extend("openai_compatible", {
-		name = "bureau",
+		name = "local",
 		env = {
-			url = "http://bureau:8000",
+			url = "http://localhost:8000",
 			chat_url = "/v1/chat/completions",
 			models_endpoint = "/v1/models",
 			api_key = "Your internal token here", 
