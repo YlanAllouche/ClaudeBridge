@@ -27,10 +27,11 @@ jobs:
           BASE_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
           COMMIT_LEVEL=$(git rev-list --count HEAD)
           FULL_VERSION="${BASE_VERSION}.${COMMIT_LEVEL}"
+          IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "base=${BASE_VERSION}" >> $GITHUB_OUTPUT
           echo "commit_level=${COMMIT_LEVEL}" >> $GITHUB_OUTPUT
           echo "full=${FULL_VERSION}" >> $GITHUB_OUTPUT
-
+          echo "image_name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -65,8 +66,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.full }}
+            ${{ env.REGISTRY }}/${{ steps.version.outputs.image_name }}:latest
+            ${{ env.REGISTRY }}/${{ steps.version.outputs.image_name }}:v${{ steps.version.outputs.full }}
           labels: |
             org.opencontainers.image.version=${{ steps.version.outputs.full }}
             org.opencontainers.image.revision=${{ github.sha }}
