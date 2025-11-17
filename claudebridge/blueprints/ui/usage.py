@@ -61,11 +61,11 @@ def ui_usage_real():
 
     metrics_summary = metrics_manager.get_metrics_summary()
     active_account = accounts_manager.get_active_account()
-    web_usage_data = (
-        web_session_poller.get_usage_data(active_account["account_id"])
-        if active_account
-        else None
-    )
+
+    if not active_account or not active_account.get("web_session_key"):
+        return ""
+
+    web_usage_data = web_session_poller.get_usage_data(active_account["account_id"])
 
     if not web_usage_data:
         return ""

@@ -213,13 +213,19 @@ def format_prometheus_metrics(
     account_label = f'account="{account_name}"' if account_name else ""
 
     if web_usage_data:
-        five_hour = web_usage_data.get("five_hour", {})
-        if five_hour and "utilization" in five_hour:
-            lines.append(
-                f'cc_websession_5h_percent{{{account_label}}} {five_hour.get("utilization", 0)}'
-            )
-        else:
+        is_stale = web_usage_data.get("is_stale", False)
+        error = web_usage_data.get("error")
+
+        if is_stale and error:
             lines.append(f"cc_websession_5h_percent{{{account_label}}} NaN")
+        else:
+            five_hour = web_usage_data.get("five_hour", {})
+            if five_hour and "utilization" in five_hour:
+                lines.append(
+                    f'cc_websession_5h_percent{{{account_label}}} {five_hour.get("utilization", 0)}'
+                )
+            else:
+                lines.append(f"cc_websession_5h_percent{{{account_label}}} NaN")
     else:
         lines.append(f"cc_websession_5h_percent{{{account_label}}} NaN")
 
@@ -230,15 +236,52 @@ def format_prometheus_metrics(
     lines.append("# TYPE cc_websession_7d_percent gauge")
 
     if web_usage_data:
-        seven_day = web_usage_data.get("seven_day", {})
-        if seven_day and "utilization" in seven_day:
-            lines.append(
-                f'cc_websession_7d_percent{{{account_label}}} {seven_day.get("utilization", 0)}'
-            )
-        else:
+        is_stale = web_usage_data.get("is_stale", False)
+        error = web_usage_data.get("error")
+
+        if is_stale and error:
             lines.append(f"cc_websession_7d_percent{{{account_label}}} NaN")
+        else:
+            seven_day = web_usage_data.get("seven_day", {})
+            if seven_day and "utilization" in seven_day:
+                lines.append(
+                    f'cc_websession_7d_percent{{{account_label}}} {seven_day.get("utilization", 0)}'
+                )
+            else:
+                lines.append(f"cc_websession_7d_percent{{{account_label}}} NaN")
     else:
         lines.append(f"cc_websession_7d_percent{{{account_label}}} NaN")
+
+    lines.append("")
+    lines.append(
+        "# HELP cc_websession_last_updated_timestamp Timestamp of last successful web session poll"
+    )
+    lines.append("# TYPE cc_websession_last_updated_timestamp gauge")
+
+    if web_usage_data:
+        last_updated = web_usage_data.get("last_updated", 0)
+        if last_updated:
+            lines.append(
+                f"cc_websession_last_updated_timestamp{{{account_label}}} {last_updated}"
+            )
+        else:
+            lines.append(f"cc_websession_last_updated_timestamp{{{account_label}}} 0")
+    else:
+        lines.append(f"cc_websession_last_updated_timestamp{{{account_label}}} 0")
+
+    lines.append("")
+    lines.append(
+        "# HELP cc_websession_error_status Whether web session polling is currently failing (0=ok, 1=error)"
+    )
+    lines.append("# TYPE cc_websession_error_status gauge")
+
+    if web_usage_data:
+        is_stale = web_usage_data.get("is_stale", False)
+        error = web_usage_data.get("error")
+        error_status = 1 if (is_stale and error) else 0
+        lines.append(f"cc_websession_error_status{{{account_label}}} {error_status}")
+    else:
+        lines.append(f"cc_websession_error_status{{{account_label}}} 0")
 
     lines.append("")
     return "\n".join(lines)

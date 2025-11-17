@@ -403,6 +403,7 @@ class AccountsManager:
         if not account:
             return False
 
+        old_session_key = account.get("web_session_key")
         account["web_session_key"] = session_key
         account["web_session_key_error"] = None
         account["web_session_key_updated_at"] = (
@@ -411,9 +412,28 @@ class AccountsManager:
         account["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
         self.save_accounts()
-        logger.info(
-            f"Updated web session key for account: {account['account_name']} ({account_id})"
-        )
+
+        if session_key:
+            action = "replaced" if old_session_key else "added"
+            logger.info(
+                f"Web session key {action} for account: {account['account_name']} ({account_id})"
+            )
+            logger.trace(
+                f"Web session key updated",
+                account_id=account_id,
+                account_name=account["account_name"],
+                key_preview=session_key[:20] + "...",
+                has_org_uuid=bool(account.get("organization_uuid")),
+            )
+        else:
+            logger.info(
+                f"Web session key removed for account: {account['account_name']} ({account_id})"
+            )
+            logger.trace(
+                f"Web session key removed",
+                account_id=account_id,
+                account_name=account["account_name"],
+            )
         return True
 
     def update_web_session_key_error(

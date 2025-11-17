@@ -5,13 +5,62 @@ import pyhtml_cem.webawesome as wa
 from pyhtml_htmx import hx
 
 
-def create_web_session_key_section(account_id, web_session_key, web_session_error):
+def create_web_session_key_section(
+    account_id,
+    web_session_key,
+    web_session_error,
+    web_session_polling_error=None,
+    web_session_polling_error_since=None,
+):
     if web_session_key:
         masked_key = (
             web_session_key[:20] + "..."
             if len(web_session_key) > 20
             else web_session_key
         )
+
+        error_elements = []
+
+        if web_session_error:
+            error_elements.append(
+                wa.callout(
+                    wa.icon(slot="icon", name="exclamation-triangle"),
+                    web_session_error,
+                    variant="danger",
+                    open=True,
+                    class_="mt-3",
+                )
+            )
+
+        # Polling error
+        if web_session_polling_error:
+            error_since_text = ""
+            if web_session_polling_error_since:
+                import time
+
+                error_duration = int(time.time()) - web_session_polling_error_since
+                if error_duration < 60:
+                    error_since_text = f" (for {error_duration}s)"
+                elif error_duration < 3600:
+                    minutes = error_duration // 60
+                    error_since_text = f" (for {minutes}m)"
+                else:
+                    hours = error_duration // 3600
+                    minutes = (error_duration % 3600) // 60
+                    error_since_text = f" (for {hours}h {minutes}m)"
+
+            error_elements.append(
+                wa.callout(
+                    wa.icon(slot="icon", name="exclamation-triangle"),
+                    p.strong(
+                        f"Polling failed: {web_session_polling_error}{error_since_text}"
+                    ),
+                    variant="warning",
+                    open=True,
+                    class_="mt-3",
+                )
+            )
+
         return p.div(
             p.div(
                 p.div(
@@ -52,17 +101,7 @@ def create_web_session_key_section(account_id, web_session_key, web_session_erro
                         swap="outerHTML",
                     ),
                 ),
-                (
-                    wa.callout(
-                        wa.icon(slot="icon", name="exclamation-triangle"),
-                        web_session_error,
-                        variant="danger",
-                        open=True,
-                        class_="mt-3",
-                    )
-                    if web_session_error
-                    else p.div()
-                ),
+                *error_elements,
                 class_="bg-white rounded-card shadow-warm-md p-4 border border-cloud-light",
             )
         )
@@ -102,7 +141,9 @@ def create_web_session_key_section(account_id, web_session_key, web_session_erro
         )
 
 
-def create_accounts_page(accounts, config_manager, accounts_manager=None):
+def create_accounts_page(
+    accounts, config_manager, accounts_manager=None, web_session_poller=None
+):
     has_account = len(accounts) > 0
     account = accounts[0] if has_account else None
 
@@ -152,7 +193,7 @@ def create_accounts_page(accounts, config_manager, accounts_manager=None):
     )
 
 
-def create_account_card(account, accounts_manager=None):
+def create_account_card(account, accounts_manager=None, web_session_poller=None):
     account_id = account.get("account_id")
     account_name = account.get("account_name", "Unknown Account")
     connected = account.get("connected", False)
@@ -165,6 +206,12 @@ def create_account_card(account, accounts_manager=None):
     anthropic_uuid = account.get("anthropic_account_uuid", "N/A")
     web_session_key = account.get("web_session_key")
     web_session_error = account.get("web_session_key_error")
+
+    web_session_polling_error = None
+    web_session_polling_error_since = None
+    if web_session_poller:
+        web_session_polling_error = web_session_poller.get_error(account_id)
+        web_session_polling_error_since = web_session_poller.get_error_since(account_id)
 
     if connected:
         status_badge = p.span(
@@ -285,7 +332,11 @@ def create_account_card(account, accounts_manager=None):
                 class_="text-xs text-cloud-dark mb-1",
             ),
             create_web_session_key_section(
-                account_id, web_session_key, web_session_error
+                account_id,
+                web_session_key,
+                web_session_error,
+                web_session_polling_error,
+                web_session_polling_error_since,
             ),
         ),
         id="account-card",
