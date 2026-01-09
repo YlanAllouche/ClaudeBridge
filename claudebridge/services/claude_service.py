@@ -42,6 +42,7 @@ class ClaudeService:
         model: str = "claude-4-5-sonnet",
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_choice: Optional[Any] = None,
+        name_mapping: Optional[dict] = None,
     ) -> Dict[str, Any]:
         try:
             kwargs = {}
@@ -63,6 +64,12 @@ class ClaudeService:
             # Add tool_calls if present
             if hasattr(message, "tool_calls") and message.tool_calls:
                 message_dict["tool_calls"] = message.tool_calls
+                if name_mapping:
+                    message_dict["tool_calls"] = (
+                        AnthropicOAuthClient.restore_tool_names_from_anthropic(
+                            message_dict["tool_calls"], name_mapping
+                        )
+                    )
 
             result = {
                 "id": f"chatcmpl-{uuid.uuid4().hex[:8]}",
@@ -109,6 +116,7 @@ class ClaudeService:
         model: str = "claude-3-5-sonnet-20241022",
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_choice: Optional[Any] = None,
+        name_mapping: Optional[dict] = None,
     ) -> Generator[tuple, None, None]:
         try:
             kwargs = {}
@@ -144,13 +152,16 @@ class ClaudeService:
                         if content_block.get("type") == "tool_use":
                             has_tool_calls = True
                             index = chunk.event_data.get("index", 0)
+                            tool_name = content_block.get("name", "")
+                            if name_mapping and tool_name in name_mapping:
+                                tool_name = name_mapping[tool_name]
                             tool_call_buffer[index] = {
                                 "id": content_block.get(
                                     "id", f"call_{uuid.uuid4().hex[:8]}"
                                 ),
                                 "type": "function",
                                 "function": {
-                                    "name": content_block.get("name", ""),
+                                    "name": tool_name,
                                     "arguments": "",
                                 },
                             }
@@ -281,4 +292,3 @@ class ClaudeService:
             raise
         except Exception as e:
             raise Exception(f"Claude API error: {str(e)}")
-

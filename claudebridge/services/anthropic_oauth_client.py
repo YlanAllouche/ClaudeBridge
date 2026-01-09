@@ -5,6 +5,7 @@ Uses the OAuth fetch wrapper for transparent token management
 
 # TODO:: P1 - Entirely refactor
 
+
 import json
 import uuid
 from datetime import datetime
@@ -102,6 +103,116 @@ class AnthropicOAuthClient:
         """
         if not tool_choice or tool_choice == "none":
             return None
+
+        if tool_choice == "auto":
+            return {"type": "auto"}
+
+        if tool_choice == "required":
+            # OpenAI "required" means force a tool call
+            return {"type": "any"}
+
+        if isinstance(tool_choice, dict):
+            if tool_choice.get("type") == "function":
+                func_name = tool_choice.get("function", {}).get("name")
+                if func_name:
+                    return {"type": "tool", "name": func_name}
+            return tool_choice
+
+        return None
+
+    @staticmethod
+    def rename_tools_for_anthropic(
+        openai_tools: List[Dict[str, Any]],
+    ) -> tuple[List[Dict[str, Any]], dict]:
+        """
+        Rename tools with MCP prefix for obfuscation
+        Returns: (renamed_tools, name_mapping)
+        where name_mapping is: {"mcp_bash_tool": "bash", ...}
+        """
+        if not openai_tools:
+            return [], {}
+
+        renamed_tools = []
+        name_mapping = {}
+
+        for tool in openai_tools:
+            renamed_tool = tool.copy()
+
+            if tool.get("type") == "function":
+                func = tool["function"]
+                original_name = func["name"]
+                renamed_name = f"mcp_{original_name}_tool"
+
+                renamed_tool["function"]["name"] = renamed_name
+                name_mapping[renamed_name] = original_name
+            elif "name" in tool:
+                original_name = tool["name"]
+                renamed_name = f"mcp_{original_name}_tool"
+
+                renamed_tool["name"] = renamed_name
+                name_mapping[renamed_name] = original_name
+
+            renamed_tools.append(renamed_tool)
+
+        return renamed_tools, name_mapping
+
+    @staticmethod
+    def restore_tool_names_from_anthropic(data: Any, name_mapping: dict) -> Any:
+        """
+        Restore original tool names in tool_calls
+        Handles both streaming and non-streaming responses
+        """
+        if not name_mapping:
+            return data
+
+        if isinstance(data, dict):
+            restored = {}
+            for key, value in data.items():
+                if key == "name" and value in name_mapping:
+                    restored[key] = name_mapping[value]
+                elif key == "tool_calls":
+                    restored[key] = (
+                        AnthropicOAuthClient.restore_tool_names_from_anthropic(
+                            value, name_mapping
+                        )
+                    )
+                elif key == "function":
+                    restored[key] = (
+                        AnthropicOAuthClient.restore_tool_names_from_anthropic(
+                            value, name_mapping
+                        )
+                    )
+                elif key == "choices":
+                    restored[key] = (
+                        AnthropicOAuthClient.restore_tool_names_from_anthropic(
+                            value, name_mapping
+                        )
+                    )
+                elif key == "message":
+                    restored[key] = (
+                        AnthropicOAuthClient.restore_tool_names_from_anthropic(
+                            value, name_mapping
+                        )
+                    )
+                elif key == "delta":
+                    restored[key] = (
+                        AnthropicOAuthClient.restore_tool_names_from_anthropic(
+                            value, name_mapping
+                        )
+                    )
+                else:
+                    restored[key] = value
+            return restored
+
+        elif isinstance(data, list):
+            return [
+                AnthropicOAuthClient.restore_tool_names_from_anthropic(
+                    item, name_mapping
+                )
+                for item in data
+            ]
+
+        return data
 
         if tool_choice == "auto":
             return {"type": "auto"}

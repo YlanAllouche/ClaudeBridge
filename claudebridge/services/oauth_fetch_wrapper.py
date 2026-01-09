@@ -47,11 +47,11 @@ class OAuthFetchWrapper:
             headers.update(
                 {
                     "anthropic-version": "2023-06-01",
-                    "anthropic-beta": "oauth-2025-04-20,claude-code-20250219,interleaved-thinking-2025-05-14,fine-grained-tool-streaming-2025-05-14",
+                    "anthropic-beta": "oauth-2025-04-20,interleaved-thinking-2025-05-14",
                 }
             )
 
-            headers["includeUsage"] = "true"
+            headers["user-agent"] = "claude-cli/2.1.2 (external, cli)"
 
             conflicting_headers = ["x-api-key", "X-API-Key", "api-key"]
             for header in conflicting_headers:

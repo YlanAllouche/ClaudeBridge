@@ -65,6 +65,18 @@ def chat_completions():
         tools = data.get("tools")
         tool_choice = data.get("tool_choice")
 
+        name_mapping = {}
+        reverse_name_mapping = {}
+        if tools:
+            tools, name_mapping = AnthropicOAuthClient.rename_tools_for_anthropic(tools)
+            reverse_name_mapping = {v: k for k, v in name_mapping.items()}
+
+        if tool_choice and isinstance(tool_choice, dict):
+            if tool_choice.get("function"):
+                func_name = tool_choice["function"].get("name")
+                if func_name and func_name in reverse_name_mapping:
+                    tool_choice["function"]["name"] = reverse_name_mapping[func_name]
+
         logger.debug(
             f"[OPENAI] Model: '{model}' | Stream: {stream} | Tools: {bool(tools)} | Auth: Bearer | Token: {token_name}"
         )
@@ -154,6 +166,7 @@ def chat_completions():
                         model,
                         tools=anthropic_tools,
                         tool_choice=anthropic_tool_choice,
+                        name_mapping=name_mapping,
                     ):
                         if chunk_usage:
                             if isinstance(chunk_usage, tuple):
@@ -241,6 +254,7 @@ def chat_completions():
                 model,
                 tools=anthropic_tools,
                 tool_choice=anthropic_tool_choice,
+                name_mapping=name_mapping,
             )
 
             duration = time.time() - start_time
